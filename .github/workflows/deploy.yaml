@@ -1,0 +1,58 @@
+name: Deploy Package
+
+permissions:
+  contents: read
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  # TODO: Maybe add auto-updating to internal change-log
+
+  wally:
+    name: Deploy Wally
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Install aftman
+        uses: ok-nick/setup-aftman@v0.3.0
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Install wally packages
+        runs: |
+          wally install
+
+      - name: Deploy new version
+        runs: |
+          wally publish --token ${{ secrets.GITHUB_TOKEN }}
+
+  roblox:
+    name: Deploy Roblox
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Install aftman
+        uses: ok-nick/setup-aftman@v0.3.0
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Install wally packages
+        runs: |
+          wally install
+
+      - name: Build project
+        run: rojo build -o "ForbiddenAPI.rbxm"
+
+      - name: Add build to Release
+        run: |
+          gh release upload ${{ github.GITHUB_REF_NAME }} "ForbiddenAPI.rbxm" --clobber
+
+      - name: Push to Roblox
+        run: |
+          rbxcloud assets update -f "ForbiddenAPI.rbxm" -p ${{ vars.ASSET_ID }} -t model-fbx -a ${{ secrets.OPEN_CLOUD_TOKEN }}

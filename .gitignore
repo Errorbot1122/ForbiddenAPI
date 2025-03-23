@@ -1,0 +1,12 @@
+# Project place file
+**.rb*
+
+# lock Files
+**.lock
+
+# Rojo
+sourcemap.json
+Packages
+
+# Secrets
+**.env

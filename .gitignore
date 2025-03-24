@@ -6,7 +6,10 @@
 
 # Rojo
 sourcemap.json
+
+# Packages
 Packages
+**/.venv
 
 # Secrets
 **.env

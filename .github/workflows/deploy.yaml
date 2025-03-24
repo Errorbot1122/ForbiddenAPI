@@ -9,6 +9,37 @@ on:
 
 jobs:
   # TODO: Maybe add auto-updating to internal change-log
+  changelog:
+    name: Update Changelog
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Install python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: install Dependencies
+        run: |
+          pip3 install -r scripts/requirements.txt
+
+      - name: Update Information Script
+        env:
+          INFO_PATH: src/ForbiddenAPI/Information.server.lua
+
+          # Used to find where to place the new log
+          LOG_LOC_TEXT: "<-- UPDATE -->"
+        run: |
+          # Generate changlog
+          changlog=$(python3 scripts/release-to-info.py V.1.1.7 -r https://github.com/prooheckcp/RobloxStateMachine)
+          echo -e "$changlog"
+
+          # Add to info path
+          '/<!-- UPDATE -->/a Hello World'
+          sed "/$LOG_LOC_TEXT/a $changelog" $INFO_PATH
 
   wally:
     name: Deploy Wally

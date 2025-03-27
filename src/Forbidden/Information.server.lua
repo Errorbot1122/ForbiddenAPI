@@ -65,7 +65,8 @@ If none of the above works, send a comment, or a bug report in the discord, with
 
 								UPDATE LOGS
 						@rman501 > Lead Developer
-						
+
+<!-- UPDATE -->
 UPDATE v0.0.18 - "The Big One"
 
 	- AI 	| Rewritten for ideal concurrency handling and reliability.
@@ -458,4 +459,5 @@ Release
 		
 		
 @rman501, @CritDEV on YT. Thank you for using Forbidden.
-]]--
+]]
+--

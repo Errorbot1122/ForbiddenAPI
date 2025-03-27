@@ -1,7 +1,7 @@
 name: Deploy Package
 
 permissions:
-  contents: read
+  contents: write
 
 on:
   release:
@@ -15,6 +15,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
+        with:
+          ref: $GITHUB_REF
 
       - name: Install python
         uses: actions/setup-python@v5
@@ -34,12 +36,18 @@ jobs:
           LOG_LOC_TEXT: "<-- UPDATE -->"
         run: |
           # Generate changlog
-          changlog=$(python3 scripts/release-to-info.py V.1.1.7 -r https://github.com/prooheckcp/RobloxStateMachine)
+          changlog=$(python3 scripts/release-to-info.py $GITHUB_REF_NAME -r $GITHUB_REPOSITORY)
           echo -e "$changlog"
 
           # Add to info path
           '/<!-- UPDATE -->/a Hello World'
           sed "/$LOG_LOC_TEXT/a $changelog" $INFO_PATH
+
+      - name: Commit Changes
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: Update info on Release
+          tagging_message: $GITHUB_REPOSITORY-final
 
   wally:
     name: Deploy Wally
@@ -82,7 +90,7 @@ jobs:
 
       - name: Add build to Release
         run: |
-          gh release upload ${{ github.GITHUB_REF_NAME }} "ForbiddenAPI.rbxm" --clobber
+          gh release upload $GITHUB_REF_NAME "ForbiddenAPI.rbxm" --clobber
 
       - name: Push to Roblox
         run: |

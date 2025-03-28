@@ -18,9 +18,11 @@ def parse_release(release_data) -> str:
     use_arrow_bullets = re.sub(r"\- ", "> ", no_headings)
     tab_body = "\n".join(["\t" + line for line in use_arrow_bullets.splitlines()])
 
-    return f"""UPDATE {release["name"]}
+    # MANDATORY FOR SED COMMAND
+    final = f"""UPDATE {release["name"]}
 
     {tab_body}"""
+    return "\n".join([line + "\\" for line in final.splitlines()])
 
 
 if __name__ == "__main__":

@@ -31,17 +31,16 @@ jobs:
 
       - name: Update Information Script
         env:
-          INFO_PATH: src/ForbiddenAPI/Information.server.lua
+          INFO_PATH: src/Forbidden/Information.server.lua
 
           # Used to find where to place the new log
-          LOG_LOC_TEXT: "<-- UPDATE -->"
+          LOG_LOC_TEXT: "<!-- UPDATE -->"
         run: |
           # Generate changelog
           changelog=$(python3 scripts/release-to-info.py ${{ github.ref_name }} -r $GITHUB_REPOSITORY)
           echo -e "$changelog"
 
           # Add to info path
-          echo "/$LOG_LOC_TEXT/a $changelog"
           sed "/$LOG_LOC_TEXT/a $changelog" $INFO_PATH
 
       - name: Determine updated tag name
@@ -105,14 +104,14 @@ jobs:
           wally install
 
       - name: Build project
-        run: rojo build -o "ForbiddenAPI.rbxm"
+        run: rojo build -o "Forbidden.rbxm"
 
       - name: Add Build to Release
         run: |
-          gh release upload $NEW_TAG_NAME "ForbiddenAPI.rbxm" --clobber
+          gh release upload $NEW_TAG_NAME "Forbidden.rbxm" --clobber
 
       - name: Push to Roblox
         run: |
-          rbxcloud assets update -f "ForbiddenAPI.rbxm" -p ${{ vars.ASSET_ID }} -t model-fbx -a ${{ secrets.OPEN_CLOUD_TOKEN }}
+          rbxcloud assets update -f "Forbidden.rbxm" -p ${{ vars.ASSET_ID }} -t model-fbx -a ${{ secrets.OPEN_CLOUD_TOKEN }}
 
   # TODO: add zipped version to assets for non-wally users

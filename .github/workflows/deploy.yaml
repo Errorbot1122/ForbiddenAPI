@@ -8,15 +8,19 @@ on:
     types: [published]
 
 jobs:
-  # TODO: Maybe add auto-updating to internal change-log
   changelog:
     name: Update Changelog
     runs-on: ubuntu-latest
+    outputs:
+      final-tag: ${{ steps.set-final-tag.outputs.tag }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
         with:
           ref: $GITHUB_REF
+
+      - id: set-final-tag
+        run: echo "tag=$GITHUB_REPOSITORY-final" >> "$GITHUB_OUTPUT"
 
       - name: Install python
         uses: actions/setup-python@v5
@@ -47,11 +51,18 @@ jobs:
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: Update info on Release
-          tagging_message: $GITHUB_REPOSITORY-final
+          tagging_message: "$GITHUB_REPOSITORY-final"
+
+      - name: Fix release tag
+        env:
+          NEW_TAG_NAME: "$GITHUB_REPOSITORY-final"
+        run: |
+          gh release edit $GITHUB_REF_NAME --tag $NEW_TAG_NAME
 
   wally:
     name: Deploy Wally
     runs-on: ubuntu-latest
+    needs: [changelog]
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -72,6 +83,9 @@ jobs:
   roblox:
     name: Deploy Roblox
     runs-on: ubuntu-latest
+    needs: [changelog]
+    env:
+      NEW_TAG_NAME: ${{ needs.changelog.outputs.final-tag }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -88,10 +102,12 @@ jobs:
       - name: Build project
         run: rojo build -o "ForbiddenAPI.rbxm"
 
-      - name: Add build to Release
+      - name: Add Build to Release
         run: |
-          gh release upload $GITHUB_REF_NAME "ForbiddenAPI.rbxm" --clobber
+          gh release upload $NEW_TAG_NAME "ForbiddenAPI.rbxm" --clobber
 
       - name: Push to Roblox
         run: |
           rbxcloud assets update -f "ForbiddenAPI.rbxm" -p ${{ vars.ASSET_ID }} -t model-fbx -a ${{ secrets.OPEN_CLOUD_TOKEN }}
+
+  # TODO: add zipped version to assets for non-wally users

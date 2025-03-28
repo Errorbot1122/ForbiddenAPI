@@ -19,9 +19,6 @@ jobs:
         with:
           ref: $GITHUB_REF
 
-      - id: set-final-tag
-        run: echo "tag=$GITHUB_REPOSITORY-final" >> "$GITHUB_OUTPUT"
-
       - name: Install python
         uses: actions/setup-python@v5
         with:
@@ -47,15 +44,19 @@ jobs:
           '/<!-- UPDATE -->/a Hello World'
           sed "/$LOG_LOC_TEXT/a $changelog" $INFO_PATH
 
+      - name: Determine updated tag name
+        id: set-final-tag
+        run: echo "tag=$GITHUB_REPOSITORY-final" >> "$GITHUB_OUTPUT"
+
       - name: Commit Changes
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: Update info on Release
-          tagging_message: "$GITHUB_REPOSITORY-final"
+          tagging_message: ${{ steps.set-final-tag.outputs.final-tag }}
 
       - name: Fix release tag
         env:
-          NEW_TAG_NAME: "$GITHUB_REPOSITORY-final"
+          NEW_TAG_NAME: ${{ steps.set-final-tag.outputs.final-tag }}
         run: |
           gh release edit $GITHUB_REF_NAME --tag $NEW_TAG_NAME
 

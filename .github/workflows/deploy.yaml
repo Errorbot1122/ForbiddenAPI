@@ -41,23 +41,26 @@ jobs:
           echo -e "$changelog"
 
           # Add to info path
-          sed "/$LOG_LOC_TEXT/a $changelog" $INFO_PATH
+          sed -e "/$LOG_LOC_TEXT/a $changelog" -e 's/\/$//' $INFO_PATH > $INFO_PATH
 
       - name: Determine updated tag name
         id: set-final-tag
         run: echo "tag=$GITHUB_REPOSITORY-final" >> "$GITHUB_OUTPUT"
 
       - name: Commit Changes
-        uses: stefanzweifel/git-auto-commit-action@v5
-        with:
-          commit_message: Update info on Release
-          tagging_message: ${{ steps.set-final-tag.outputs.final-tag }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add .
+          git commit -m "Update info on Release"
+          git tag -m ${{ steps.set-final-tag.outputs.final-tag }}
+          git push  --follow-tags
 
       - name: Fix release tag
         env:
           NEW_TAG_NAME: ${{ steps.set-final-tag.outputs.final-tag }}
         run: |
-          gh release edit $GITHUB_REF_NAME --tag $NEW_TAG_NAME
+          gh release edit ${{ github.ref_name }} --tag $NEW_TAG_NAME
 
   wally:
     name: Deploy Wally

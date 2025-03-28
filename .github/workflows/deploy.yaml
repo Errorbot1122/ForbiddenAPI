@@ -73,11 +73,11 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Install wally packages
-        runs: |
+        run: |
           wally install
 
       - name: Deploy new version
-        runs: |
+        run: |
           wally publish --token ${{ secrets.GITHUB_TOKEN }}
 
   roblox:
@@ -96,7 +96,7 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Install wally packages
-        runs: |
+        run: |
           wally install
 
       - name: Build project

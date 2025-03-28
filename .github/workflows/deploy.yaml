@@ -41,6 +41,7 @@ jobs:
           echo -e "$changelog"
 
           # Add to info path
+          echo "/$LOG_LOC_TEXT/a $changelog"
           sed "/$LOG_LOC_TEXT/a $changelog" $INFO_PATH
 
       - name: Determine updated tag name

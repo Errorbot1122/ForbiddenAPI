@@ -37,10 +37,11 @@ jobs:
           LOG_LOC_TEXT: "<-- UPDATE -->"
         run: |
           # Generate changlog
-          changlog=$(python3 scripts/release-to-info.py $GITHUB_REF_NAME -r $GITHUB_REPOSITORY)
+          changlog=$(python3 scripts/release-to-info.py ${{ github.ref_name }} -r $GITHUB_REPOSITORY)
           echo -e "$changlog"
 
           # Add to info path
+          echo "/$LOG_LOC_TEXT/a $changelog"
           sed "/$LOG_LOC_TEXT/a $changelog" $INFO_PATH
 
       - name: Determine updated tag name

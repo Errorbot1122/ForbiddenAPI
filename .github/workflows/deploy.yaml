@@ -12,9 +12,7 @@ jobs:
     name: Update Changelog
     runs-on: ubuntu-latest
     outputs:
-      final-tag:
-        description: "Final tag name after changelog commit"
-        value: ${{ steps.set-final-tag.outputs.tag }}
+      final-tag: ${{ steps.set-final-tag.outputs.tag }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -57,7 +55,7 @@ jobs:
 
       - name: Determine updated tag name
         id: set-final-tag
-        run: echo "final-tag=${{ github.ref_name }}-final" > "$GITHUB_OUTPUT"
+        run: echo "final-tag=${{ github.ref_name }}-final" ?> "$GITHUB_OUTPUT"
 
       - name: Commit Changes
         run: |
@@ -107,7 +105,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
         with:
-          ref: ${{ steps.set-final-tag.outputs.final-tag }}
+          ref: ${{ need.checkout.outputs.final-tag }}
 
       - name: Install aftman
         uses: ok-nick/setup-aftman@v0.3.0

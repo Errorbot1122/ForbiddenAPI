@@ -55,7 +55,7 @@ jobs:
 
       - name: Determine updated tag name
         id: set-final-tag
-        run: echo "tag=$GITHUB_REPOSITORY-final" >> "$GITHUB_OUTPUT"
+        run: echo "final-tag=${{ github.ref_name }}-final" > "$GITHUB_OUTPUT"
 
       - name: Commit Changes
         run: |

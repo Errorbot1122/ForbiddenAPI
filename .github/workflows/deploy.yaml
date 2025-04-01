@@ -21,6 +21,8 @@ jobs:
 
       - name: Get branch
         run: |
+          set -exo pipefail
+
           branch=$(git rev-parse HEAD)
           echo "BRANCH=$branch" > $GITHUB_ENV
 
@@ -46,6 +48,8 @@ jobs:
           # Used to find where to place the new log
           LOG_LOC_TEXT: "<!-- UPDATE -->"
         run: |
+          set -exo pipefail
+
           # Generate changelog
           changelog=$(python3 scripts/release-to-info.py ${{ github.ref_name }} -r $GITHUB_REPOSITORY)
           echo -e "$changelog"
@@ -61,6 +65,8 @@ jobs:
 
       - name: Commit Changes
         run: |
+          set -exo pipefail
+
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add .

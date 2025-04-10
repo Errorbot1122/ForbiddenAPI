@@ -72,6 +72,7 @@ jobs:
           git add .
           git commit -m "Update info on Release"
           git tag ${{ steps.set-final-tag.outputs.final-tag }}
+          echo '${{ steps.set-final-tag.outputs.final-tag }}'
           git push  --follow-tags
 
       - name: Fix release tag

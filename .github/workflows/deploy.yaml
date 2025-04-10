@@ -60,12 +60,6 @@ jobs:
           git commit -m "Automated update info on Release"
           git push origin HEAD:${{ github.ref_name }} --force
 
-      - name: Fix release tag
-        env:
-          NEW_TAG_NAME: ${{ steps.set-final-tag.outputs.final-tag }}
-        run: |
-          gh release edit ${{ github.ref_name }} --tag $NEW_TAG_NAME
-
   wally:
     name: Deploy Wally
     runs-on: ubuntu-latest

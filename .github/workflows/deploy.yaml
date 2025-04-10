@@ -11,25 +11,14 @@ jobs:
   changelog:
     name: Update Changelog
     runs-on: ubuntu-latest
-    outputs:
-      final-tag: ${{ steps.set-final-tag.outputs.tag }}
+    env:
+      INFO_PATH: src/Forbidden/Information.server.lua
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           ref: ${{ github.ref_name }}
-
-      - name: Get branch
-        run: |
-          set -exo pipefail
-
-          branch=$(git rev-parse HEAD)
-          echo "BRANCH=$branch" > $GITHUB_ENV
-
-      - name: Checkout branch
-        uses: actions/checkout@v3
-        with:
-          ref: ${{ env.BRANCH }}
+          fetch-depth: 0
 
       - name: Install python
         uses: actions/setup-python@v5
@@ -43,8 +32,6 @@ jobs:
 
       - name: Update Information Script
         env:
-          INFO_PATH: src/Forbidden/Information.server.lua
-
           # Used to find where to place the new log
           LOG_LOC_TEXT: "<!-- UPDATE -->"
         run: |
@@ -69,11 +56,9 @@ jobs:
 
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add .
-          git commit -m "Update info on Release"
-          echo '${{ steps.set-final-tag.outputs.final-tag }}'
-          git tag ${{ steps.set-final-tag.outputs.final-tag }}
-          git push  --follow-tags
+          git add $INFO_PATH
+          git commit -m "Automated update info on Release"
+          git push origin HEAD:${{ github.ref_name }} --force
 
       - name: Fix release tag
         env:
@@ -87,7 +72,7 @@ jobs:
     needs: [changelog] # NOTE: Technically not needed, but for better action graph
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           ref: ${{ steps.set-final-tag.outputs.final-tag }}
 
@@ -108,11 +93,9 @@ jobs:
     name: Deploy Roblox
     runs-on: ubuntu-latest
     needs: [changelog]
-    env:
-      NEW_TAG_NAME: ${{ needs.changelog.outputs.final-tag }}
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           ref: ${{ needs.checkout.outputs.final-tag }}
 
@@ -130,7 +113,7 @@ jobs:
 
       - name: Add Build to Release
         run: |
-          gh release upload $NEW_TAG_NAME "Forbidden.rbxm" --clobber
+          gh release upload ${{ github.ref_name }} "Forbidden.rbxm" --clobber
 
       - name: Push to Roblox
         run: |

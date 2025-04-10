@@ -68,20 +68,21 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
-          ref: ${{ steps.set-final-tag.outputs.final-tag }}
+          ref: ${{ github.ref_name }}
 
       - name: Install aftman
         uses: ok-nick/setup-aftman@v0.3.0
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ github.token }}
 
       - name: Install wally packages
         run: |
           wally install
 
+      # XXX: Get the wally auth token at ~/.wally/auth.toml (~ is Home or User Folder)
       - name: Deploy new version
         run: |
-          wally publish --token ${{ secrets.GITHUB_TOKEN }}
+          wally publish --token ${{ secrets.WALLY_AUTH_TOKEN }}
 
   roblox:
     name: Deploy Roblox
@@ -91,12 +92,12 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
-          ref: ${{ needs.checkout.outputs.final-tag }}
+          ref: ${{ github.ref_name }}
 
       - name: Install aftman
         uses: ok-nick/setup-aftman@v0.3.0
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ github.token }}
 
       - name: Install wally packages
         run: |
@@ -106,6 +107,8 @@ jobs:
         run: rojo build -o "Forbidden.rbxm"
 
       - name: Add Build to Release
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           gh release upload ${{ github.ref_name }} "Forbidden.rbxm" --clobber
 
